@@ -136,6 +136,7 @@ object Server {
         )
     }
 
-    private fun handleGameStateMessage(connection: Connection, data: Message.GameState) {
+    private suspend fun handleGameStateMessage(connection: Connection, data: Message.GameState) {
+        sendGameState(connection)
     }
 }

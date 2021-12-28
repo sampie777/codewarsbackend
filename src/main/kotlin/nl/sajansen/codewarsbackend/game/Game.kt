@@ -23,8 +23,8 @@ object Game {
     }
 
     fun removePlayer(id: Int) {
-        logger.info("Removing player $id")
         val player = getPlayer(id) ?: return
+        logger.info("Removing player ${player.name}")
         players.remove(player)
     }
 
