@@ -12,6 +12,7 @@ import io.ktor.routing.*
 import io.ktor.websocket.*
 import nl.sajansen.codewarsbackend.config.Config
 import nl.sajansen.codewarsbackend.utils.getCurrentJarDirectory
+import nl.sajansen.codewarsbackend.ws.Server
 import nl.sajansen.codewarsbackend.ws.websocketRoutes
 import org.slf4j.LoggerFactory
 import org.slf4j.event.Level
@@ -42,6 +43,8 @@ fun Application.module(testing: Boolean = false) {
     Config.enableWriteToFile(!ApplicationRuntimeSettings.virtualConfig && !testing)
     Config.load()
     Config.save()
+
+    Server.start()
 
     install(Locations)
 
