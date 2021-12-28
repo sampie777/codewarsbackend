@@ -74,7 +74,15 @@ object Server {
                 connection.identify()
             }
             Type.PLAYER_STATE -> {
-                logger.info("Got player state")
+                connection.sendJson(
+                    mapOf(
+                        "type" to Type.GAME_STATE,
+                        "x" to 0,
+                        "y" to 0,
+                        "size" to 10,
+                        "heading" to 0,
+                    )
+                )
             }
         }
     }

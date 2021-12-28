@@ -7,6 +7,7 @@ import java.util.concurrent.atomic.AtomicInteger
 enum class Type {
     IDENTIFY,
     PLAYER_STATE,
+    GAME_STATE,
 }
 
 class Connection(val session: DefaultWebSocketSession) {
