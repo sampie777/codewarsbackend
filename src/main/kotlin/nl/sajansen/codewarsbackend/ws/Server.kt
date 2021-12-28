@@ -4,6 +4,7 @@ import io.ktor.http.cio.websocket.*
 import jsonBuilder
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
+import nl.sajansen.codewarsbackend.game.Game
 import org.slf4j.LoggerFactory
 import java.util.*
 import kotlin.concurrent.fixedRateTimer
@@ -40,11 +41,16 @@ object Server {
         connections.add(connection)
 
         logger.info("New connection: ${connection.name}. Currently ${connections.size} connections.")
+
+        Game.createPlayer(connection.id, connection.name)
+
         return connection
     }
 
     fun closeConnection(connection: Connection) {
         logger.info("Closing connecting: ${connection.name}")
+
+        Game.removePlayer(connection.id)
         connections.remove(connection)
 
         runBlocking {
@@ -96,12 +102,36 @@ object Server {
     }
 
     private suspend fun handlePlayerStateMessage(connection: Connection, data: Message.PlayerState) {
+        Game.updatePlayer(
+            connection.id,
+            acceleration = data.acceleration,
+            rotation = data.rotation
+        )
+
+        sendGameState(connection)
+    }
+
+    private suspend fun sendGameState(connection: Connection) {
+        val state = Game.getStateForPlayer(connection.id) ?: return
+
         connection.sendJson(
             Message.GameState(
-                x = 0f,
-                y = 0f,
-                size = 10f,
-                heading = 0f,
+                name = state.name,
+                x = state.x,
+                y = state.y,
+                size = state.size,
+                heading = state.heading,
+
+                players = state.players.map {
+                    Message.Player(
+                        id = it.id,
+                        name = it.name,
+                        x = it.x,
+                        y = it.y,
+                        size = it.size,
+                        heading = it.heading,
+                    )
+                }
             )
         )
     }

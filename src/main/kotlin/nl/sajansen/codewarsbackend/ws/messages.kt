@@ -14,10 +14,22 @@ object Message {
     ) : BaseMessage(type = Type.PLAYER_STATE)
 
 
-    data class GameState(
+    data class Player(
+        val id: Int,
+        val name: String,
         val x: Float,
         val y: Float,
-        val size: Float,
+        val size: Int,
         val heading: Float,
-    ) : BaseMessage(type = Type.PLAYER_STATE)
+    )
+
+
+    data class GameState(
+        val name: String,
+        val x: Float,
+        val y: Float,
+        val size: Int,
+        val heading: Float,
+        val players: List<Player>,
+    ) : BaseMessage(type = Type.GAME_STATE)
 }
