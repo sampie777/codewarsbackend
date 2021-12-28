@@ -1,7 +1,9 @@
 package nl.sajansen.codewarsbackend.game
 
+import nl.sajansen.codewarsbackend.config.Config
 import org.slf4j.LoggerFactory
 import java.util.*
+import kotlin.concurrent.fixedRateTimer
 
 object Game {
     private val logger = LoggerFactory.getLogger(this.toString())
@@ -16,6 +18,16 @@ object Game {
         var heading: Float,
         var players: List<Player>,
     )
+
+    fun start() {
+        fixedRateTimer(
+            name = "gameStepTimer",
+            daemon = true,
+            period = (1000 / Config.gameStepsPerSecond).toLong()
+        ) {
+            step()
+        }
+    }
 
     fun createPlayer(id: Int, name: String) {
         val player = Player(id, name)
@@ -49,5 +61,12 @@ object Game {
             heading = player.heading,
             players = players.filter { it.id != player.id }
         )
+    }
+
+    private fun step() {
+        players.toTypedArray().forEach {
+            it.velocity += it.acceleration / Config.gameStepsPerSecond
+            it.x += it.velocity / Config.gameStepsPerSecond
+        }
     }
 }

@@ -4,6 +4,7 @@ import io.ktor.http.cio.websocket.*
 import jsonBuilder
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
+import nl.sajansen.codewarsbackend.config.Config
 import nl.sajansen.codewarsbackend.game.Game
 import org.slf4j.LoggerFactory
 import java.util.*
@@ -15,7 +16,11 @@ object Server {
     private val connections: MutableSet<Connection> = Collections.synchronizedSet(LinkedHashSet())
 
     fun start() {
-        fixedRateTimer(name = "connectionCheckTimer", daemon = true, period = 1000) {
+        fixedRateTimer(
+            name = "connectionCheckTimer",
+            daemon = true,
+            period = Config.serverCheckDisconnectedTimeout
+        ) {
             connections
                 .filter { isConnectionClosed(it) }
                 .forEach { closeConnection(it) }

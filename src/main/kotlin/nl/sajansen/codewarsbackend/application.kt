@@ -11,6 +11,7 @@ import io.ktor.request.*
 import io.ktor.routing.*
 import io.ktor.websocket.*
 import nl.sajansen.codewarsbackend.config.Config
+import nl.sajansen.codewarsbackend.game.Game
 import nl.sajansen.codewarsbackend.utils.getCurrentJarDirectory
 import nl.sajansen.codewarsbackend.ws.Server
 import nl.sajansen.codewarsbackend.ws.websocketRoutes
@@ -45,6 +46,7 @@ fun Application.module(testing: Boolean = false) {
     Config.save()
 
     Server.start()
+    Game.start()
 
     install(Locations)
 

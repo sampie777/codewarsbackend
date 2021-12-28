@@ -9,6 +9,10 @@ object Config {
 
     /* ********************************** */
 
+    var gameStepsPerSecond = 10
+    var playerDefaultSize = 10
+    var serverCheckDisconnectedTimeout = 1000L
+
     fun load() {
         try {
             PropertyLoader.load()
