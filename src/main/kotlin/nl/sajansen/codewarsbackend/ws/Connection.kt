@@ -26,10 +26,5 @@ suspend fun Connection.sendJson(data: Any) {
 }
 
 suspend fun Connection.identify() {
-    sendJson(
-        mapOf(
-            "type" to Type.IDENTIFY,
-            "id" to id,
-        )
-    )
+    sendJson(Message.Identify(id = id))
 }

@@ -35,12 +35,11 @@ object Server {
         return false
     }
 
-    suspend fun newConnection(session: DefaultWebSocketSession): Connection {
+    fun newConnection(session: DefaultWebSocketSession): Connection {
         val connection = Connection(session)
         connections.add(connection)
 
         logger.info("New connection: ${connection.name}. Currently ${connections.size} connections.")
-        connection.identify()
         return connection
     }
 
@@ -62,34 +61,51 @@ object Server {
 
     suspend fun handleTextMessage(connection: Connection, frame: Frame.Text) {
         val receivedText = frame.readText()
-        logger.info("[${connection.name}] Received: " + receivedText)
 
-        val data = jsonBuilder().fromJson(receivedText, Map::class.java)
-        if (!data.containsKey("type")) {
-            logger.warn("Unknown message type for message: ", receivedText)
+        val type = try {
+            jsonBuilder().fromJson(receivedText, Message.BaseMessage::class.java).type
+        } catch (t: Throwable) {
+            logger.error("Unknown message type: ", receivedText)
+            return
         }
 
-        when (Type.valueOf(data["type"] as String)) {
-            Type.IDENTIFY -> {
-                connection.identify()
-            }
-            Type.PLAYER_STATE -> {
-                connection.sendJson(
-                    mapOf(
-                        "type" to Type.GAME_STATE,
-                        "x" to 0,
-                        "y" to 0,
-                        "size" to 10,
-                        "heading" to 0,
-                    )
-                )
-            }
+        val data = getTypedData(receivedText, type)
+
+        when (data.type) {
+            Type.IDENTIFY -> handleIdentifyMessage(connection, data as Message.Identify)
+            Type.PLAYER_STATE -> handlePlayerStateMessage(connection, data as Message.PlayerState)
+            Type.GAME_STATE -> handleGameStateMessage(connection, data as Message.GameState)
         }
     }
 
-    suspend fun sendToAll(message: String) {
-        connections.forEach {
-            it.session.send(message)
+    private fun getTypedData(text: String, type: Type): Message.BaseMessage {
+        return when (type) {
+            Type.IDENTIFY -> jsonBuilder().fromJson(text, Message.Identify::class.java)
+            Type.PLAYER_STATE -> jsonBuilder().fromJson(text, Message.PlayerState::class.java)
+            Type.GAME_STATE -> jsonBuilder().fromJson(text, Message.GameState::class.java)
         }
+    }
+
+    private suspend fun handleIdentifyMessage(connection: Connection, data: Message.Identify) {
+        if (data.id != null) {
+            // todo: Should map with old session
+            connection.identify()
+        } else {
+            connection.identify()
+        }
+    }
+
+    private suspend fun handlePlayerStateMessage(connection: Connection, data: Message.PlayerState) {
+        connection.sendJson(
+            Message.GameState(
+                x = 0f,
+                y = 0f,
+                size = 10f,
+                heading = 0f,
+            )
+        )
+    }
+
+    private fun handleGameStateMessage(connection: Connection, data: Message.GameState) {
     }
 }
