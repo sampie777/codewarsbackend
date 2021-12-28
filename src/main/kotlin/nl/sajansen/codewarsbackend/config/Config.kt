@@ -10,7 +10,11 @@ object Config {
     /* ********************************** */
 
     var gameStepsPerSecond = 10
-    var playerDefaultSize = 10
+    var boardWidth = 700
+    var boardHeight = 600
+    var playerDefaultSize = 30
+    var playerFrictionConstant = 0.99f
+    var playerDensity = 1.0f
     var serverCheckDisconnectedTimeout = 1000L
 
     fun load() {

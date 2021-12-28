@@ -1,6 +1,12 @@
 package nl.sajansen.codewarsbackend.ws
 
 object Message {
+    enum class Type {
+        IDENTIFY,
+        PLAYER_STATE,
+        GAME_STATE,
+    }
+
     open class BaseMessage(val type: Type)
 
     data class Identify(
@@ -9,7 +15,7 @@ object Message {
 
 
     data class PlayerState(
-        val acceleration: Float?,
+        val appliedForce: Float?,
         val rotation: Float?,
     ) : BaseMessage(type = Type.PLAYER_STATE)
 

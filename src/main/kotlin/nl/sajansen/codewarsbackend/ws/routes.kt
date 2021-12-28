@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory
 private val logger = LoggerFactory.getLogger("ws.routes")
 
 fun Route.websocketRoutes() {
-    webSocket("/ws/echo") {
+    webSocket("/ws") {
         try {
             val connection = Server.newConnection(this)
             handleMessages(connection)

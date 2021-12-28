@@ -2,13 +2,9 @@ package nl.sajansen.codewarsbackend.ws
 
 import io.ktor.http.cio.websocket.*
 import jsonBuilder
+import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
 
-enum class Type {
-    IDENTIFY,
-    PLAYER_STATE,
-    GAME_STATE,
-}
 
 class Connection(val session: DefaultWebSocketSession) {
     companion object {
@@ -17,6 +13,7 @@ class Connection(val session: DefaultWebSocketSession) {
 
     val id = lastId.getAndIncrement()
     val name = "user${id}"
+    var lastMessageTime = Date()
 }
 
 suspend fun Connection.sendJson(data: Any) {

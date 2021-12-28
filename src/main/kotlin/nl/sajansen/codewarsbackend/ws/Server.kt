@@ -13,17 +13,26 @@ import kotlin.concurrent.fixedRateTimer
 object Server {
     private val logger = LoggerFactory.getLogger(this.toString())
 
-    private val connections: MutableSet<Connection> = Collections.synchronizedSet(LinkedHashSet())
+    val connections: MutableSet<Connection> = Collections.synchronizedSet(LinkedHashSet())
 
     fun start() {
         fixedRateTimer(
             name = "connectionCheckTimer",
             daemon = true,
-            period = Config.serverCheckDisconnectedTimeout
+            period = Config.serverCheckDisconnectedTimeout,
+            initialDelay = Config.serverCheckDisconnectedTimeout,
         ) {
-            connections
-                .filter { isConnectionClosed(it) }
-                .forEach { closeConnection(it) }
+            try {
+                connections
+                    .filter { isConnectionClosed(it) }
+                    .forEach { closeConnection(it) }
+                Game.players
+                    .filter { connections.find { connection -> connection.id == it.id } == null }
+                    .forEach { Game.removePlayer(it.id) }
+            } catch (t: Throwable) {
+                logger.error("Exception during checking and removing disconnected connections")
+                t.printStackTrace()
+            }
         }
     }
 
@@ -38,7 +47,18 @@ object Server {
             logger.info("Connection ${it.name} is closed for receive")
             return true
         }
+
+        if (isConnectionLastMessageTimedOut(it)) {
+            logger.info("Connection ${it.name} hasn't send messages for a while")
+            return true
+        }
+
         return false
+    }
+
+    fun isConnectionLastMessageTimedOut(it: Connection, maxMilliSeconds: Int = 1000): Boolean {
+        val minExpectedLastMessageTime = Date(Date().time - maxMilliSeconds)
+        return it.lastMessageTime.before(minExpectedLastMessageTime)
     }
 
     fun newConnection(session: DefaultWebSocketSession): Connection {
@@ -72,6 +92,7 @@ object Server {
 
     suspend fun handleTextMessage(connection: Connection, frame: Frame.Text) {
         val receivedText = frame.readText()
+        connection.lastMessageTime = Date()
 
         val type = try {
             jsonBuilder().fromJson(receivedText, Message.BaseMessage::class.java).type
@@ -83,17 +104,17 @@ object Server {
         val data = getTypedData(receivedText, type)
 
         when (data.type) {
-            Type.IDENTIFY -> handleIdentifyMessage(connection, data as Message.Identify)
-            Type.PLAYER_STATE -> handlePlayerStateMessage(connection, data as Message.PlayerState)
-            Type.GAME_STATE -> handleGameStateMessage(connection, data as Message.GameState)
+            Message.Type.IDENTIFY -> handleIdentifyMessage(connection, data as Message.Identify)
+            Message.Type.PLAYER_STATE -> handlePlayerStateMessage(connection, data as Message.PlayerState)
+            Message.Type.GAME_STATE -> handleGameStateMessage(connection, data as Message.GameState)
         }
     }
 
-    private fun getTypedData(text: String, type: Type): Message.BaseMessage {
+    private fun getTypedData(text: String, type: Message.Type): Message.BaseMessage {
         return when (type) {
-            Type.IDENTIFY -> jsonBuilder().fromJson(text, Message.Identify::class.java)
-            Type.PLAYER_STATE -> jsonBuilder().fromJson(text, Message.PlayerState::class.java)
-            Type.GAME_STATE -> jsonBuilder().fromJson(text, Message.GameState::class.java)
+            Message.Type.IDENTIFY -> jsonBuilder().fromJson(text, Message.Identify::class.java)
+            Message.Type.PLAYER_STATE -> jsonBuilder().fromJson(text, Message.PlayerState::class.java)
+            Message.Type.GAME_STATE -> jsonBuilder().fromJson(text, Message.GameState::class.java)
         }
     }
 
@@ -109,7 +130,7 @@ object Server {
     private suspend fun handlePlayerStateMessage(connection: Connection, data: Message.PlayerState) {
         Game.updatePlayer(
             connection.id,
-            acceleration = data.acceleration,
+            appliedForce = data.appliedForce,
             rotation = data.rotation
         )
 
