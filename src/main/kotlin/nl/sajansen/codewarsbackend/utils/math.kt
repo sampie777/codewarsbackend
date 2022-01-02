@@ -2,6 +2,7 @@ package nl.sajansen.codewarsbackend.utils
 
 import java.util.*
 import kotlin.math.PI
+import kotlin.math.abs
 import kotlin.math.sqrt
 
 fun Vector<Float>.add(vector: Vector<Float>): Vector<Float> {
@@ -35,7 +36,7 @@ fun Vector<Float>.multiplyBy(by: Float): Vector<Float> {
 fun Vector<Float>.length(): Float {
     return when (this.size) {
         0 -> 0f
-        1 -> this[0]
+        1 -> abs(this[0])
         2 -> sqrt(this[0] * this[0] + this[1] * this[1])
         else -> throw NotImplementedError("Length calculation for vector with size ${this.size} not yet implemented")
     }

@@ -4,7 +4,9 @@ import nl.sajansen.codewarsbackend.config.Config
 import nl.sajansen.codewarsbackend.utils.*
 import org.slf4j.LoggerFactory
 import kotlin.concurrent.fixedRateTimer
+import kotlin.math.abs
 import kotlin.math.cos
+import kotlin.math.pow
 import kotlin.math.sin
 
 object Game {
@@ -82,10 +84,29 @@ object Game {
         val mass = it.size * Config.playerDensity
         val normalForce = mass * 9.81f
         val frictionForce = it.velocity.normalize().multiplyBy(-1 * Config.playerFrictionConstant * normalForce)
-        val netForce = it.appliedForce.add(frictionForce)
+        val dragForce = it.velocity.normalize().multiplyBy(
+            -0.5f * Config.airDensity
+                    * it.velocity.length().pow(2)
+                    * Config.boardDragCoefficient
+                    * it.size
+        )
+        val netForce = it.appliedForce.add(frictionForce).add(dragForce)
         val acceleration = netForce.divideBy(mass)
 
-        it.velocity = it.velocity.add(acceleration.divideBy(Config.gameStepsPerSecond))
+
+        val accelerationStep = acceleration.divideBy(Config.gameStepsPerSecond)
+
+        if (it.appliedForce.length() == 0f) {
+            (0..1).forEach { direction ->
+                if (accelerationStep[direction] < 0 && it.velocity[direction] > 0 && abs(accelerationStep[direction]) > it.velocity[direction]) {
+                    accelerationStep[direction] = -1 * it.velocity[direction]
+                } else if (accelerationStep[direction] > 0 && it.velocity[direction] < 0 && accelerationStep[direction] > abs(it.velocity[direction])) {
+                    accelerationStep[direction] = -1 * it.velocity[direction]
+                }
+            }
+        }
+
+        it.velocity = it.velocity.add(accelerationStep)
 
         it.x += it.velocity[0] / Config.gameStepsPerSecond
         it.y -= it.velocity[1] / Config.gameStepsPerSecond
@@ -94,14 +115,18 @@ object Game {
     private fun constrainPlayerMovement(it: Player) {
         if (it.x - it.size / 2 < 0) {
             it.x = it.size / 2f
+            it.velocity[0] = 0.0f
         } else if (it.x + it.size / 2 > Config.boardWidth) {
             it.x = Config.boardWidth - it.size / 2f
+            it.velocity[0] = 0.0f
         }
 
         if (it.y - it.size / 2 < 0) {
             it.y = it.size / 2f
+            it.velocity[1] = 0.0f
         } else if (it.y + it.size / 2 > Config.boardHeight) {
             it.y = Config.boardHeight - it.size / 2f
+            it.velocity[1] = 0.0f
         }
     }
 }

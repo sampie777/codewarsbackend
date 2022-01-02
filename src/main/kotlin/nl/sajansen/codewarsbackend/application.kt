@@ -107,7 +107,7 @@ fun Application.module(testing: Boolean = false) {
         method(HttpMethod.Patch)
         header(HttpHeaders.Authorization)
         header(HttpHeaders.ContentType)
-        allowCredentials = true
+//        allowCredentials = true
         anyHost() // @TODO: Don't do this in production if possible. Try to limit it.
     }
 

@@ -12,9 +12,11 @@ object Config {
     var gameStepsPerSecond = 10
     var boardWidth = 700
     var boardHeight = 600
+    var boardDragCoefficient = 0.8f
     var playerDefaultSize = 30
-    var playerFrictionConstant = 0.99f
-    var playerDensity = 1.0f
+    var playerFrictionConstant = 0.8f
+    var playerDensity = 1.0f // 10e3 kg/m3
+    var airDensity = 0.005f // 10e3 kg/m3
     var serverCheckDisconnectedTimeout = 1000L
 
     fun load() {
