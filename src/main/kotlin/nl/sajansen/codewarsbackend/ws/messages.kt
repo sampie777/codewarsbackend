@@ -31,11 +31,7 @@ object Message {
 
 
     data class GameState(
-        val name: String,
-        val x: Float,
-        val y: Float,
-        val size: Int,
-        val heading: Float,
+        val player: Player,
         val players: List<Player>,
     ) : BaseMessage(type = Type.GAME_STATE)
 }

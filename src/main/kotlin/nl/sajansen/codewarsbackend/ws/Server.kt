@@ -138,17 +138,20 @@ object Server {
     }
 
     private suspend fun sendGameState(connection: Connection) {
-        val state = Game.getStateForPlayer(connection.id) ?: return
+        val player = Game.getPlayer(connection.id) ?: return
+        val players = Game.players.filter { it.id != player.id }
 
         connection.sendJson(
             Message.GameState(
-                name = state.name,
-                x = state.x,
-                y = state.y,
-                size = state.size,
-                heading = state.heading,
-
-                players = state.players.map {
+                player = Message.Player(
+                    id = player.id,
+                    name = player.name,
+                    x = player.x,
+                    y = player.y,
+                    size = player.size,
+                    heading = player.heading,
+                ),
+                players = players.map {
                     Message.Player(
                         id = it.id,
                         name = it.name,

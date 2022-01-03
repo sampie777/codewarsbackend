@@ -14,15 +14,6 @@ object Game {
 
     val players: ArrayList<Player> = arrayListOf()
 
-    data class State(
-        var name: String,
-        var x: Float,
-        var y: Float,
-        var size: Int,
-        var heading: Float,
-        var players: List<Player>,
-    )
-
     fun start() {
         fixedRateTimer(
             name = "gameStepTimer",
@@ -59,18 +50,6 @@ object Game {
                 it.appliedForce[1] = appliedForce * cos(degToRad(it.heading))
             }
         }
-    }
-
-    fun getStateForPlayer(id: Int): State? {
-        val player = getPlayer(id) ?: return null
-        return State(
-            name = player.name,
-            x = player.x,
-            y = player.y,
-            size = player.size,
-            heading = player.heading,
-            players = players.filter { it.id != player.id }
-        )
     }
 
     private fun step() {
