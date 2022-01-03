@@ -61,7 +61,7 @@ object Server {
         return it.lastMessageTime.before(minExpectedLastMessageTime)
     }
 
-    fun newConnection(session: DefaultWebSocketSession): Connection {
+    suspend fun newConnection(session: DefaultWebSocketSession): Connection {
         val connection = Connection(session)
         connections.add(connection)
 
@@ -69,6 +69,7 @@ object Server {
 
         Game.createPlayer(connection.id, connection.name)
 
+        sendGameConfiguration(connection)
         return connection
     }
 
@@ -115,6 +116,7 @@ object Server {
             Message.Type.IDENTIFY -> jsonBuilder().fromJson(text, Message.Identify::class.java)
             Message.Type.PLAYER_STATE -> jsonBuilder().fromJson(text, Message.PlayerState::class.java)
             Message.Type.GAME_STATE -> jsonBuilder().fromJson(text, Message.GameState::class.java)
+            Message.Type.GAME_CONFIGURATION -> jsonBuilder().fromJson(text, Message.GameConfiguration::class.java)
         }
     }
 
@@ -150,6 +152,15 @@ object Server {
         )
 
         sendGameState(connection)
+    }
+
+    private suspend fun sendGameConfiguration(connection: Connection) {
+        connection.sendJson(
+            Message.GameConfiguration(
+                mapWidth = Game.configuration.mapWidth,
+                mapHeight = Game.configuration.mapHeight,
+            )
+        )
     }
 
     private suspend fun sendGameState(connection: Connection) {

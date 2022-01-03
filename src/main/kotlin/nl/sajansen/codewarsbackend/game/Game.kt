@@ -13,6 +13,10 @@ object Game {
     private val logger = LoggerFactory.getLogger(this.toString())
 
     val players: ArrayList<Player> = arrayListOf()
+    val configuration = Configuration(
+        mapWidth = Config.boardWidth,
+        mapHeight = Config.boardHeight
+    )
 
     fun start() {
         fixedRateTimer(

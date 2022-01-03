@@ -5,6 +5,7 @@ object Message {
         IDENTIFY,
         PLAYER_STATE,
         GAME_STATE,
+        GAME_CONFIGURATION,
     }
 
     open class BaseMessage(val type: Type)
@@ -13,12 +14,10 @@ object Message {
         val id: Int?,
     ) : BaseMessage(type = Type.IDENTIFY)
 
-
     data class PlayerState(
         val appliedForce: Float?,
         val rotation: Float?,
     ) : BaseMessage(type = Type.PLAYER_STATE)
-
 
     data class Player(
         val id: Int,
@@ -29,9 +28,13 @@ object Message {
         val heading: Float,
     )
 
-
     data class GameState(
         val player: Player,
         val players: List<Player>,
     ) : BaseMessage(type = Type.GAME_STATE)
+
+    data class GameConfiguration(
+        val mapWidth: Int,
+        val mapHeight: Int,
+    ) : BaseMessage(type = Type.GAME_CONFIGURATION)
 }
