@@ -13,4 +13,14 @@ data class Player(
     var y: Float = 0f,
     var size: Int = Config.playerDefaultSize,
     var heading: Float = 0f,
-)
+) {
+    fun copyFrom(player: Player) {
+        appliedForce = player.appliedForce
+        rotation = player.rotation
+        velocity = player.velocity
+        x = player.x
+        y = player.y
+        size = player.size
+        heading = player.heading
+    }
+}

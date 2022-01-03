@@ -24,9 +24,10 @@ object Game {
         }
     }
 
-    fun createPlayer(id: Int, name: String) {
+    fun createPlayer(id: Int, name: String): Player {
         val player = Player(id, name)
         players.add(player)
+        return player
     }
 
     fun removePlayer(id: Int) {
@@ -36,9 +37,7 @@ object Game {
         logger.info("Players left: ${players.size}")
     }
 
-    private fun getPlayer(id: Int): Player? {
-        return players.find { it.id == id }
-    }
+    fun getPlayer(id: Int): Player? = players.find { it.id == id }
 
     fun updatePlayer(id: Int, appliedForce: Float?, rotation: Float?) {
         getPlayer(id)?.let {

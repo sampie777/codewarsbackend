@@ -121,10 +121,25 @@ object Server {
     private suspend fun handleIdentifyMessage(connection: Connection, data: Message.Identify) {
         if (data.id != null) {
             // todo: Should map with old session
-            connection.identify()
-        } else {
-            connection.identify()
+            bindConnectionWithOlderConnection(connection, data.id)
         }
+        connection.identify()
+    }
+
+    private fun bindConnectionWithOlderConnection(connection: Connection, oldId: Int) {
+        // Only copy player object if another connection isn't using it
+        if (connections.any { it.id == oldId }) {
+            return
+        }
+
+        val player = Game.getPlayer(oldId)
+            ?: return
+
+        val newPlayer = Game.getPlayer(connection.id)
+            ?: Game.createPlayer(connection.id, player.name)
+
+        newPlayer.copyFrom(player)
+        Game.removePlayer(player.id)
     }
 
     private suspend fun handlePlayerStateMessage(connection: Connection, data: Message.PlayerState) {
