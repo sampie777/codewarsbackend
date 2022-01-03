@@ -1,9 +1,15 @@
 package nl.sajansen.codewarsbackend.game
 
+import org.junit.Before
 import org.junit.Test
 import kotlin.test.assertEquals
 
 class GameTest {
+    @Before
+    fun before() {
+        Game.players.clear()
+    }
+
     @Test
     fun `test removing players`() {
         Game.createPlayer(0, "player0")

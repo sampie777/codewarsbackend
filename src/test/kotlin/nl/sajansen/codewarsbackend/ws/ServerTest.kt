@@ -2,6 +2,7 @@ package nl.sajansen.codewarsbackend.ws
 
 import io.ktor.server.testing.*
 import kotlinx.coroutines.delay
+import nl.sajansen.codewarsbackend.game.Game
 import nl.sajansen.codewarsbackend.module
 import org.junit.Before
 import org.junit.Test
@@ -14,6 +15,7 @@ class ServerTest {
     @Before
     fun before() {
         Server.connections.forEach { Server.closeConnection(it) }
+        Game.players.clear()
     }
 
     @Test

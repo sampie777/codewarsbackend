@@ -1,0 +1,6 @@
+# comment
+*/.volumes/
+target/
+.resources/
+.idea/
+docs/
