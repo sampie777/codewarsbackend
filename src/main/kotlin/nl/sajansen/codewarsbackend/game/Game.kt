@@ -46,11 +46,11 @@ object Game {
     fun updatePlayer(id: Int, appliedForce: Float?, rotation: Float?) {
         getPlayer(id)?.let {
             it.rotation = rotation ?: it.rotation
-            it.heading += it.rotation
+            it.orientation += it.rotation
 
             if (appliedForce != null) {
-                it.appliedForce[0] = appliedForce * sin(degToRad(it.heading))
-                it.appliedForce[1] = appliedForce * cos(degToRad(it.heading))
+                it.appliedForce[0] = appliedForce * sin(degToRad(it.orientation))
+                it.appliedForce[1] = appliedForce * cos(degToRad(it.orientation))
             }
         }
     }

@@ -175,7 +175,7 @@ object Server {
                     x = player.x,
                     y = player.y,
                     size = player.size,
-                    heading = player.heading,
+                    orientation = player.orientation,
                 ),
                 players = players.map {
                     Message.Player(
@@ -184,7 +184,7 @@ object Server {
                         x = it.x,
                         y = it.y,
                         size = it.size,
-                        heading = it.heading,
+                        orientation = it.orientation,
                     )
                 }
             )
