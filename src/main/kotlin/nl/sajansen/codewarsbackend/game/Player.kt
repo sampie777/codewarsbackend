@@ -12,7 +12,7 @@ data class Player(
     var x: Float = 0f,
     var y: Float = 0f,
     var size: Int = Config.playerDefaultSize,
-    var orientation: Float = 0f,
+    var orientation: Float = 100f,
 ) {
     fun copyFrom(player: Player) {
         appliedForce = player.appliedForce
