@@ -3,6 +3,7 @@ package nl.sajansen.codewarsbackend.utils
 import java.util.*
 import kotlin.math.PI
 import kotlin.math.abs
+import kotlin.math.atan
 import kotlin.math.sqrt
 
 fun Vector<Float>.add(vector: Vector<Float>): Vector<Float> {
@@ -42,6 +43,39 @@ fun Vector<Float>.length(): Float {
     }
 }
 
+fun Vector<Float>.angle(): Float {
+    if (this.size != 2) {
+        throw NotImplementedError("Angle calculation for vector with size ${this.size} not yet implemented")
+    }
+
+    //             y
+    //   atan(x/y) |  atan(x/y)
+    //      + 360  |
+    //   ----------|---------- x
+    //             |
+    //   atan(x/y) |  atan(x/y)
+    //      + 180  |     + 180
+
+    // Prevent division by zero
+    if (this[1] == 0f) {
+        return if (this[0] > 0f) {
+            90f
+        } else if (this[0] < 0f) {
+            270f
+        } else {
+            return 0f
+        }
+    }
+
+    var angle = radToDeg(atan(this[0] / this[1]))
+    if (this[1] < 0) {
+        angle += 180
+    } else if (this[0] < 0) {
+        angle += 360
+    }
+    return angle
+}
+
 fun Vector<Float>.normalize(): Vector<Float> {
     val result = Vector<Float>(this.size)
     val length = this.length()
@@ -54,3 +88,4 @@ fun Vector<Float>.normalize(): Vector<Float> {
 }
 
 fun degToRad(deg: Float) = (deg / 180.0f * PI).toFloat()
+fun radToDeg(rad: Float) = (rad / PI * 180.0f).toFloat()
