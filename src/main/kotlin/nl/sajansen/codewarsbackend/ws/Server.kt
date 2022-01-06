@@ -4,6 +4,7 @@ import io.ktor.http.cio.websocket.*
 import jsonBuilder
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
+import nl.sajansen.codewarsbackend.ApplicationInfo
 import nl.sajansen.codewarsbackend.config.Config
 import nl.sajansen.codewarsbackend.game.Game
 import org.slf4j.LoggerFactory
@@ -69,6 +70,7 @@ object Server {
 
         Game.createPlayer(connection.id, connection.name)
 
+        sendSeverInformation(connection)
         sendGameConfiguration(connection)
         return connection
     }
@@ -107,7 +109,9 @@ object Server {
         when (data.type) {
             Message.Type.IDENTIFY -> handleIdentifyMessage(connection, data as Message.Identify)
             Message.Type.PLAYER_STATE -> handlePlayerStateMessage(connection, data as Message.PlayerState)
-            Message.Type.GAME_STATE -> handleGameStateMessage(connection, data as Message.GameState)
+            Message.Type.GAME_STATE -> sendGameState(connection)
+            Message.Type.GAME_CONFIGURATION -> sendGameConfiguration(connection)
+            Message.Type.SERVER_INFORMATION -> sendSeverInformation(connection)
         }
     }
 
@@ -117,6 +121,7 @@ object Server {
             Message.Type.PLAYER_STATE -> jsonBuilder().fromJson(text, Message.PlayerState::class.java)
             Message.Type.GAME_STATE -> jsonBuilder().fromJson(text, Message.GameState::class.java)
             Message.Type.GAME_CONFIGURATION -> jsonBuilder().fromJson(text, Message.GameConfiguration::class.java)
+            Message.Type.SERVER_INFORMATION -> jsonBuilder().fromJson(text, Message.ServerInformation::class.java)
         }
     }
 
@@ -154,6 +159,14 @@ object Server {
         sendGameState(connection)
     }
 
+    private suspend fun sendSeverInformation(connection: Connection) {
+        connection.sendJson(
+            Message.ServerInformation(
+                version = ApplicationInfo.version
+            )
+        )
+    }
+
     private suspend fun sendGameConfiguration(connection: Connection) {
         connection.sendJson(
             Message.GameConfiguration(
@@ -189,9 +202,5 @@ object Server {
                 }
             )
         )
-    }
-
-    private suspend fun handleGameStateMessage(connection: Connection, data: Message.GameState) {
-        sendGameState(connection)
     }
 }

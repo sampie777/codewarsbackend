@@ -6,6 +6,7 @@ object Message {
         PLAYER_STATE,
         GAME_STATE,
         GAME_CONFIGURATION,
+        SERVER_INFORMATION,
     }
 
     open class BaseMessage(val type: Type)
@@ -37,4 +38,8 @@ object Message {
         val mapWidth: Int,
         val mapHeight: Int,
     ) : BaseMessage(type = Type.GAME_CONFIGURATION)
+
+    data class ServerInformation(
+        val version: String,
+    ) : BaseMessage(type = Type.SERVER_INFORMATION)
 }
