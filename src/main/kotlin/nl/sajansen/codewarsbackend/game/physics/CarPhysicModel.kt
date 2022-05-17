@@ -3,6 +3,7 @@ package nl.sajansen.codewarsbackend.game.physics
 import nl.sajansen.codewarsbackend.config.Config
 import nl.sajansen.codewarsbackend.game.Player
 import nl.sajansen.codewarsbackend.utils.*
+import java.util.*
 import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.pow
@@ -19,9 +20,16 @@ class CarPhysicModel : PhysicModel {
                     * Config.boardDragCoefficient
                     * player.size
         )
-        val netForce = player.appliedForce.add(frictionForce).add(dragForce)
-        val acceleration = netForce.divideBy(mass)
+        val engineIdleFrictionForce = if (player.appliedForce.length() == 0f) {
+            player.velocity.normalize().multiplyBy(-1 * Config.playerEngineIdleFrictionConstant)
+        } else Vector(listOf(0f, 0f))
 
+        val netForce = player.appliedForce
+            .add(frictionForce)
+            .add(dragForce)
+            .add(engineIdleFrictionForce)
+
+        val acceleration = netForce.divideBy(mass)
         val accelerationStep = acceleration.divideBy(Config.gameStepsPerSecond)
 
         if (player.appliedForce.length() == 0f) {

@@ -15,6 +15,7 @@ object Config {
     var boardDragCoefficient = 0.8f
     var playerDefaultSize = 30
     var playerFrictionConstant = 0.8f
+    var playerEngineIdleFrictionConstant = 500f
     var playerDensity = 1.0f // 10e3 kg/m3
     var airDensity = 0.005f // 10e3 kg/m3
     var serverCheckDisconnectedTimeout = 1000L

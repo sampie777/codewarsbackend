@@ -11,10 +11,10 @@ data class Player(
     var appliedForce: Vector<Float> = Vector(listOf(0f, 0f)),
     var rotation: Float = 0f,
     var velocity: Vector<Float> = Vector(listOf(0f, 0f)),
-    var x: Float = 0f,
-    var y: Float = 0f,
+    var x: Float = 100f,
+    var y: Float = 100f,
     var size: Int = Config.playerDefaultSize,
-    var orientation: Float = 100f,
+    var orientation: Float = 110f,
     var physicModel: PhysicModel = CarPhysicModel()
 ) {
     fun copyFrom(player: Player) {
