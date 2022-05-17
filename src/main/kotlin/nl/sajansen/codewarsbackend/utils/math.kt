@@ -89,3 +89,14 @@ fun Vector<Float>.normalize(): Vector<Float> {
 
 fun degToRad(deg: Float) = (deg / 180.0f * PI).toFloat()
 fun radToDeg(rad: Float) = (rad / PI * 180.0f).toFloat()
+
+fun limitDegrees(deg: Float): Float {
+    val result = deg % 360
+    if (result == -0.0f) {
+        return 0.0f
+    }
+    if (result < 0) {
+        return 360 + result
+    }
+    return result
+}

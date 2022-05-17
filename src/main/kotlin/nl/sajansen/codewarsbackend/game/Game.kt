@@ -20,6 +20,7 @@ object Game {
     )
 
     fun start() {
+        logger.info("Starting game at ${Config.gameStepsPerSecond} steps per second")
         fixedRateTimer(
             name = "gameStepTimer",
             daemon = true,
@@ -47,7 +48,7 @@ object Game {
     fun updatePlayer(id: Int, appliedForce: Float?, rotation: Float?) {
         getPlayer(id)?.let {
             it.rotation = rotation ?: it.rotation
-            it.orientation += it.rotation
+            it.orientation = limitDegrees(it.orientation + it.rotation)
 
             if (appliedForce != null) {
                 it.appliedForce[0] = appliedForce * sin(degToRad(it.orientation))
@@ -83,6 +84,15 @@ object Game {
         }
 
         player.velocity = player.velocity.add(accelerationStep)
+
+        // Calculate forward directed result vector
+        var velocityAmplitude = player.velocity.length()
+        val orientationDifferenceWithVelocity = abs(player.orientation - player.velocity.angle())
+        if (orientationDifferenceWithVelocity > 90 && orientationDifferenceWithVelocity < 270) {
+            velocityAmplitude *= -1
+        }
+        player.velocity[0] = velocityAmplitude * sin(degToRad(player.orientation))
+        player.velocity[1] = velocityAmplitude * cos(degToRad(player.orientation))
 
         player.x += player.velocity[0] / Config.gameStepsPerSecond
         player.y -= player.velocity[1] / Config.gameStepsPerSecond
