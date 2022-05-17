@@ -1,6 +1,8 @@
 package nl.sajansen.codewarsbackend.game
 
 import nl.sajansen.codewarsbackend.config.Config
+import nl.sajansen.codewarsbackend.game.physics.CarPhysicModel
+import nl.sajansen.codewarsbackend.game.physics.PhysicModel
 import java.util.*
 
 data class Player(
@@ -13,6 +15,7 @@ data class Player(
     var y: Float = 0f,
     var size: Int = Config.playerDefaultSize,
     var orientation: Float = 100f,
+    var physicModel: PhysicModel = CarPhysicModel()
 ) {
     fun copyFrom(player: Player) {
         appliedForce = player.appliedForce
@@ -22,5 +25,8 @@ data class Player(
         y = player.y
         size = player.size
         orientation = player.orientation
+        physicModel = player.physicModel
     }
+
+    fun calculateAndApplyForces() = physicModel.calculateAndApplyPlayerForces(this)
 }
