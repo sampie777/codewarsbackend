@@ -40,7 +40,7 @@ object Game {
     fun removePlayer(id: Int) {
         val player = getPlayer(id) ?: return
         logger.info("Removing player ${player.name}")
-        world.destroyBody(player.body)
+//        world.destroyBody(player.body)
         players.remove(player)
         logger.info("Players left: ${players.size}")
     }
