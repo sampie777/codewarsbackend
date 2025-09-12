@@ -29,6 +29,7 @@ private suspend fun DefaultWebSocketServerSession.handleMessages(connection: Con
             is Frame.Close -> Server.closeConnection(connection)
             is Frame.Ping -> logger.info("${connection.name}: Ping")
             is Frame.Pong -> logger.info("${connection.name}: Pong")
+            else -> {}
         }
     }
 }

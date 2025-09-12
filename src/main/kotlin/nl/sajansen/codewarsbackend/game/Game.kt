@@ -3,6 +3,8 @@ package nl.sajansen.codewarsbackend.game
 import nl.sajansen.codewarsbackend.config.Config
 import nl.sajansen.codewarsbackend.utils.degToRad
 import nl.sajansen.codewarsbackend.utils.limitDegrees
+import org.jbox2d.common.Vec2
+import org.jbox2d.dynamics.World
 import org.slf4j.LoggerFactory
 import kotlin.concurrent.fixedRateTimer
 import kotlin.math.cos
@@ -16,6 +18,7 @@ object Game {
         mapWidth = Config.boardWidth,
         mapHeight = Config.boardHeight
     )
+    val world = World(Vec2(0.0f, 0.0f))
 
     fun start() {
         logger.info("Starting game at ${Config.gameStepsPerSecond} steps per second")
@@ -29,7 +32,7 @@ object Game {
     }
 
     fun createPlayer(id: Int, name: String): Player {
-        val player = Player(id, name)
+        val player = Player(id, name, world=world)
         players.add(player)
         return player
     }
@@ -37,6 +40,7 @@ object Game {
     fun removePlayer(id: Int) {
         val player = getPlayer(id) ?: return
         logger.info("Removing player ${player.name}")
+        world.destroyBody(player.body)
         players.remove(player)
         logger.info("Players left: ${players.size}")
     }
@@ -51,14 +55,17 @@ object Game {
             if (appliedForce != null) {
                 it.appliedForce[0] = appliedForce * sin(degToRad(it.orientation))
                 it.appliedForce[1] = appliedForce * cos(degToRad(it.orientation))
+
             }
         }
     }
 
     private fun step() {
+        world.step(1/60f, 6, 2)
+
         players.toTypedArray().forEach {
             calculatePlayerForces(it)
-            constrainPlayerMovement(it)
+//            constrainPlayerMovement(it)
         }
     }
 
