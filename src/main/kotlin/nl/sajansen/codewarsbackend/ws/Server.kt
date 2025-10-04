@@ -7,6 +7,8 @@ import kotlinx.coroutines.runBlocking
 import nl.sajansen.codewarsbackend.ApplicationInfo
 import nl.sajansen.codewarsbackend.config.Config
 import nl.sajansen.codewarsbackend.game.Game
+import org.jbox2d.collision.shapes.PolygonShape
+import org.jbox2d.collision.shapes.ShapeType
 import org.slf4j.LoggerFactory
 import java.util.*
 import kotlin.concurrent.fixedRateTimer
@@ -153,7 +155,6 @@ object Server {
         Game.updatePlayer(
             connection.id,
             appliedForce = data.appliedForce,
-            rotation = data.rotation
         )
 
         sendGameState(connection)
@@ -189,6 +190,24 @@ object Server {
                     y = player.y,
                     size = player.size,
                     orientation = player.orientation,
+                    hull = mapOf(
+                        "x" to player.tank.hull.position.x,
+                        "y" to player.tank.hull.position.y,
+                        "angle" to player.tank.hull.angle,
+                        "vertices" to (player.tank.hull.fixtureList.shape as PolygonShape).vertices,
+                    ),
+                    leftTrack = mapOf(
+                        "x" to player.tank.leftTrack.position.x,
+                        "y" to player.tank.leftTrack.position.y,
+                        "angle" to player.tank.leftTrack.angle,
+                        "vertices" to (player.tank.leftTrack.fixtureList.shape as PolygonShape).vertices,
+                    ),
+                    rightTrack = mapOf(
+                        "x" to player.tank.rightTrack.position.x,
+                        "y" to player.tank.rightTrack.position.y,
+                        "angle" to player.tank.rightTrack.angle,
+                        "vertices" to (player.tank.rightTrack.fixtureList.shape as PolygonShape).vertices,
+                    ),
                 ),
                 players = players.map {
                     Message.Player(

@@ -6,6 +6,7 @@ import nl.sajansen.codewarsbackend.utils.limitDegrees
 import org.jbox2d.common.Vec2
 import org.jbox2d.dynamics.World
 import org.slf4j.LoggerFactory
+import java.util.Vector
 import kotlin.concurrent.fixedRateTimer
 import kotlin.math.cos
 import kotlin.math.sin
@@ -47,15 +48,11 @@ object Game {
 
     fun getPlayer(id: Int): Player? = players.find { it.id == id }
 
-    fun updatePlayer(id: Int, appliedForce: Float?, rotation: Float?) {
+    fun updatePlayer(id: Int, appliedForce: Vector<Float>?) {
         getPlayer(id)?.let {
-            it.rotation = rotation ?: it.rotation
-            it.orientation = limitDegrees(it.orientation + it.rotation)
-
             if (appliedForce != null) {
-                it.appliedForce[0] = appliedForce * sin(degToRad(it.orientation))
-                it.appliedForce[1] = appliedForce * cos(degToRad(it.orientation))
-
+                it.appliedForce[0] = appliedForce[0]
+                it.appliedForce[1] = appliedForce[1]
             }
         }
     }

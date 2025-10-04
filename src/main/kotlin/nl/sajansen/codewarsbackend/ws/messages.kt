@@ -1,5 +1,7 @@
 package nl.sajansen.codewarsbackend.ws
 
+import java.util.Vector
+
 object Message {
     enum class Type {
         IDENTIFY,
@@ -16,8 +18,7 @@ object Message {
     ) : BaseMessage(type = Type.IDENTIFY)
 
     data class PlayerState(
-        val appliedForce: Float?,
-        val rotation: Float?,
+        val appliedForce: Vector<Float>?,
     ) : BaseMessage(type = Type.PLAYER_STATE)
 
     data class Player(
@@ -27,6 +28,9 @@ object Message {
         val y: Float,
         val size: Int,
         val orientation: Float,
+        val hull: Any? = null,
+        val leftTrack: Any? = null,
+        val rightTrack: Any? = null,
     )
 
     data class GameState(
