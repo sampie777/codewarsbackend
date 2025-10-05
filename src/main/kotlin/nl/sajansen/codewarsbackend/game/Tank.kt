@@ -1,11 +1,9 @@
 package nl.sajansen.codewarsbackend.game
 
 import org.jbox2d.collision.shapes.PolygonShape
-import org.jbox2d.common.Rot
 import org.jbox2d.common.Vec2
 import org.jbox2d.dynamics.*
 import org.jbox2d.dynamics.joints.WeldJointDef
-import kotlin.math.roundToInt
 
 class Tank(
     world: World,
@@ -14,7 +12,8 @@ class Tank(
     val hullWidth: Float = 2f,
     val hullHeight: Float = 4f,
     val trackWidth: Float = 0.5f,
-    val trackHeight: Float = 4f
+    val trackHeight: Float = 4f,
+    val density: Float = 6f
 ) {
     val hull: Body
     val leftTrack: Body
@@ -30,10 +29,11 @@ class Tank(
         hullShape.setAsBox(hullWidth / 2, hullHeight / 2)
         val hullFixtureDef = FixtureDef().apply {
             shape = hullShape
-            density = 1.0f
-            friction = 0.0f
+            this.density = this@Tank.density
+            friction = 0.4f
         }
         hull.createFixture(hullFixtureDef)
+        hull.linearDamping = 20f
 
         // Create left track
         val leftTrackDef = BodyDef()
@@ -44,11 +44,10 @@ class Tank(
         leftTrackShape.setAsBox(trackWidth / 2, trackHeight / 2)
         val leftTrackFixtureDef = FixtureDef().apply {
             shape = leftTrackShape
-            density = 1.0f
-            friction = 1.0f
+            this.density = this@Tank.density
+            friction = 0.5f
         }
         leftTrack.createFixture(leftTrackFixtureDef)
-        leftTrack.linearDamping = 200f
 
         // Create right track
         val rightTrackDef = BodyDef()
@@ -59,11 +58,10 @@ class Tank(
         rightTrackShape.setAsBox(trackWidth / 2, trackHeight / 2)
         val rightTrackFixtureDef = FixtureDef().apply {
             shape = rightTrackShape
-            density = 1.0f
-            friction = 1.0f
+            this.density = this@Tank.density
+            friction = 0.5f
         }
         rightTrack.createFixture(rightTrackFixtureDef)
-        rightTrack.linearDamping = 200f
 
         // Weld left track to hull
         val leftJointDef = WeldJointDef()
@@ -78,12 +76,25 @@ class Tank(
 
     fun applyTrackForces(leftForce: Float, rightForce: Float) {
         // We inverse the force to fix the mirrored left/right forward/backward movement at the client
-        val leftRelativeForce = Vec2().also { Rot.mulToOut(Rot(leftTrack.angle), Vec2(0f, -1 * leftForce), it)}
+        val leftRelativeForce = leftTrack.getWorldVector(Vec2(0f, -1f * leftForce))
         leftTrack.applyForceToCenter(leftRelativeForce)
-        leftTrack.linearDamping = if (leftForce.roundToInt() == 0) 200f else 0f
 
-        val rightRelativeForce = Vec2().also { Rot.mulToOut(Rot(rightTrack.angle), Vec2(0f, -1 * rightForce), it)}
+        val rightRelativeForce = rightTrack.getWorldVector(Vec2(0f, -1f * rightForce))
         rightTrack.applyForceToCenter(rightRelativeForce)
-        rightTrack.linearDamping = if (rightForce.roundToInt() == 0) 200f else 0f
+
+        handleDrift(0.0f)
+    }
+
+    fun handleDrift(driftFactor: Float = 0.0f) {
+        listOf(hull, leftTrack, rightTrack).forEach { body ->
+            val forwardNormal = body.getWorldVector(Vec2(0f, 1f))
+            val lateralNormal = body.getWorldVector(Vec2(1f, 0f))
+
+            val currentForwardSpeed = forwardNormal.mul(Vec2.dot(forwardNormal, body.linearVelocity))
+            val currentLateralSpeed = lateralNormal.mul(Vec2.dot(lateralNormal, body.linearVelocity))
+
+            body.linearVelocity = currentForwardSpeed.add(currentLateralSpeed.mul(driftFactor))
+            body.angularVelocity *= driftFactor
+        }
     }
 }
