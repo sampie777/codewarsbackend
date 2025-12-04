@@ -5,7 +5,7 @@ if [ -d "/run/secrets" ]; then
   for path in /run/secrets/*; do
     file="$(basename "${path}")"
     echo "Exporting secret '${file}' as environment variable"
-    export $file=$(cat "${path}")
+    export $file=$(cat "${path}") || echo "Failed to export secret '${file}'"
   done
 fi
 
